@@ -5,7 +5,7 @@ from django.contrib.auth import get_user_model
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ['id', 'email', 'first_name', 'last_name', 'password']
+        fields = ['id', 'email', 'first_name', 'last_name', 'password', 'role']
     def create(self, validated_data):
         username = validated_data.get('username', '')
         user = User(
@@ -13,7 +13,7 @@ class UserSerializer(serializers.ModelSerializer):
             email=validated_data['email'],
             first_name=validated_data.get('first_name', ''),
             last_name=validated_data.get('last_name', ''),
-            role=validated_data.get('role', '')  # Ensure you handle the role field
+            role=validated_data['role']  # This line will cause KeyError if 'role' is not provided
         )
         user.set_password(validated_data['password'])  # Hash the password
         user.save()

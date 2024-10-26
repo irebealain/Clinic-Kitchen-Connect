@@ -5,7 +5,7 @@ from rest_framework.exceptions import NotFound, PermissionDenied
 from .models import User, Student, SpecialFood, Prescription
 from .serializers import UserSerializer, StudentSerializer, SpecialFoodSerializer, PrescriptionSerializer
 from .permissions import *
-
+from rest_framework import generics
 # Users view set only
 class UserViewSet(viewsets.ModelViewSet):
     queryset = User.objects.all()
@@ -29,6 +29,22 @@ class UserViewSet(viewsets.ModelViewSet):
         user = self.get_object()
         user.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
+class UserDeleteView(generics.DestroyAPIView):
+    queryset = User.objects.all()
+    serializer_class = UserSerializer
+    permission_classes = [IsAuthenticated]  # Ensure that the user is authenticated
+
+    def perform_destroy(self, instance):
+        # Additional logic can go here if needed
+        instance.delete() 
+class StudentDeleteView(generics.DestroyAPIView):
+    queryset = Student.objects.all()
+    serializer_class = StudentSerializer
+    # permission_classes = [IsAuthenticated]  # Ensure that the user is authenticated
+
+    def perform_destroy(self, instance):
+        # Additional logic can go here if needed
+        instance.delete() 
 class StudentViewSet(viewsets.ModelViewSet):
     queryset = Student.objects.all()
     serializer_class = StudentSerializer

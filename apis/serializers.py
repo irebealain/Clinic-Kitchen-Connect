@@ -1,6 +1,6 @@
 from rest_framework import serializers
 from .models import *
-from django.contrib.auth import get_user_model
+from django.contrib.auth import authenticate
 
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
@@ -62,17 +62,39 @@ class PrescriptionSerializer(serializers.ModelSerializer):
 
     
         
-# User = get_user_model()
+class UserSignupSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ['email', 'first_name', 'last_name', 'password', 'role']
+        extra_kwargs = {
+            'password': {'write_only': True}  # Ensure password is write-only
+        }
 
-# class UserRegistrationSerializer(serializers.ModelSerializer):
-#     password = serializers.CharField(write_only=True)
+    def create(self, validated_data):
+        user = User(
+            email=validated_data['email'],
+            first_name=validated_data['first_name'],
+            last_name=validated_data['last_name'],
+            role=validated_data['role'],
+        )
+        user.set_password(validated_data['password'])  # Hash the password
+        user.save()
+        return user
+# Login
+class UserLoginSerializer(serializers.Serializer):
+    email = serializers.EmailField()
+    password = serializers.CharField(write_only=True)
 
-#     class Meta:
-#         model = User
-#         fields = ['username', 'email', 'password', 'role']
+    def validate(self, data):
+        email = data.get('email')
+        password = data.get('password')
 
-#     def create(self, validated_data):
-#         user = User(**validated_data)
-#         user.set_password(validated_data['password'])
-#         user.save()
-#         return user
+        if email and password:
+            user = authenticate(email=email, password=password)
+            if user is None:
+                raise serializers.ValidationError("Invalid credentials.")
+        else:
+            raise serializers.ValidationError("Must include 'email' and 'password'.")
+
+        data['user'] = user
+        return data

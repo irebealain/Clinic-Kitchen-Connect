@@ -3,21 +3,29 @@ from django.contrib.auth.models import AbstractUser, Group, Permission
 # Create your models here.
 # User Model
 class User(AbstractUser):
-    # Add related_name to avoid conflicts with Django's default User model
+    email = models.EmailField(unique=True)
+    username = models.CharField(max_length=150, blank=True, null=True)
+    ROLE_CHOICES = (
+        ('ClinicStaff', 'Clinic Staff'),
+        ('KitchenStaff', 'Kitchen Staff'),
+    )
+    
+    role = models.CharField(max_length=20, choices=ROLE_CHOICES)
     groups = models.ManyToManyField(
         Group,
-        related_name='custom_user_groups',  # Change related_name to avoid conflict
+        related_name='custom_user_set',  # Unique name for reverse relation
         blank=True,
-        help_text="The groups this user belongs to.",
-        verbose_name="groups"
     )
+    
     user_permissions = models.ManyToManyField(
         Permission,
-        related_name='custom_user_permissions',  # Change related_name to avoid conflict
+        related_name='custom_user_permissions_set',  # Unique name for reverse relation
         blank=True,
-        help_text="Specific permissions for this user.",
-        verbose_name="user permissions"
-    )  
+    )
+    USERNAME_FIELD = 'email'  # Use email for authentication
+    REQUIRED_FIELDS = []
+    def __str__(self):
+        return f"{self.username} ({self.get_role_display()})"  
 # Student model
 class Student(models.Model):
   first_name = models.CharField(max_length=100)
@@ -41,8 +49,7 @@ class Prescription(models.Model):
   special_foods = models.ManyToManyField(SpecialFood)
   date_given = models.DateField(auto_now_add=True)
   expiry_date = models.DateField()
-  issued_by = models.ForeignKey(User, on_delete=models.SET_NULL, null = True, related_name = 'clinic_issued', limit_choices_to = {'role': 'clinic_staff'})
-  given_by = models.ForeignKey(User, on_delete=models.SET_NULL, null = True, related_name= 'kitchen_given', limit_choices_to= {'role': 'kitchen_staff'}, blank=True)
+  issued_by = models.ForeignKey(User, on_delete=models.CASCADE, related_name='prescriptions')
   
   def __str__(self):
-    return f"Prescription for {self.student.first_name} {self.student.last_name}"
+    return f"Prescription for {self.student.first_name} {self.student.last_name} on {self.date_given} by {self.issued_by} and it will get expired on {self.expiry_date}"

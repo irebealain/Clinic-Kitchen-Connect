@@ -2,30 +2,33 @@ from rest_framework import permissions
 
 class IsClinicStaff(permissions.BasePermission):
     """
-    Custom permission to allow only clinic staff to create, update, or delete prescriptions.
+    Custom permission to only allow Clinic Staff to create or modify prescriptions.
     """
+
     def has_permission(self, request, view):
-        # Only allow if the user is in the ClinicStaff group
-        return request.user and request.user.groups.filter(name='ClinicStaff').exists()
+        # Allow access if user is authenticated and has the 'ClinicStaff' role
+        return request.user.is_authenticated and request.user.role == 'ClinicStaff'
+
 
 class IsKitchenStaff(permissions.BasePermission):
     """
-    Custom permission to allow kitchen staff to only view and search prescriptions.
+    Custom permission to only allow Kitchen Staff to view prescriptions.
     """
+
     def has_permission(self, request, view):
-        # Kitchen staff can only view or search (safe methods)
-        return (request.user and request.user.groups.filter(name='KitchenStaff').exists() 
-                and request.method in permissions.SAFE_METHODS)
+        # Allow access if user is authenticated and has the 'KitchenStaff' role
+        return request.user.is_authenticated and request.user.role == 'KitchenStaff'
+
 
 class IsClinicOrKitchenStaff(permissions.BasePermission):
     """
-    Allows both clinic and kitchen staff to view the prescription but restricts modification to clinic staff.
+    Custom permission to allow either Clinic Staff to create/update or Kitchen Staff to view prescriptions.
     """
+
     def has_permission(self, request, view):
-        is_clinic_staff = request.user.groups.filter(name='ClinicStaff').exists()
-        is_kitchen_staff = request.user.groups.filter(name='KitchenStaff').exists()
-        if is_clinic_staff:
-            return True  # Full access to clinic staff
-        if is_kitchen_staff and request.method in permissions.SAFE_METHODS:
-            return True  # Kitchen staff can only view (GET) requests
-        return False
+        if request.method in permissions.SAFE_METHODS:
+            # Allow any authenticated user to view
+            return request.user.is_authenticated
+        
+        # Allow only Clinic Staff to create/update
+        return request.user.is_authenticated and request.user.role == 'ClinicStaff'

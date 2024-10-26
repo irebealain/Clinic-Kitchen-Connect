@@ -1,73 +1,114 @@
 from rest_framework import viewsets, status
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
+from rest_framework.exceptions import NotFound, PermissionDenied
+from .models import User, Student, SpecialFood, Prescription
+from .serializers import UserSerializer, StudentSerializer, SpecialFoodSerializer, PrescriptionSerializer
 from .permissions import *
-from rest_framework.exceptions import NotFound
-from .models import *
-from .serializers import *
 
+# Users view set only
 class UserViewSet(viewsets.ModelViewSet):
     queryset = User.objects.all()
     serializer_class = UserSerializer
+    permission_classes = [IsAuthenticated]  # Require authentication for all actions
 
     def create(self, request, *args, **kwargs):
-        try:
-            return super().create(request, *args, **kwargs)
-        except Exception as e:
-            return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        user = serializer.save()
+        return Response(UserSerializer(user).data, status=status.HTTP_201_CREATED)
 
+    def update(self, request, *args, **kwargs):
+        user = self.get_object()
+        serializer = self.get_serializer(user, data=request.data, partial=True)
+        serializer.is_valid(raise_exception=True)
+        user = serializer.save()
+        return Response(UserSerializer(user).data)
+
+    def destroy(self, request, *args, **kwargs):
+        user = self.get_object()
+        user.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
 class StudentViewSet(viewsets.ModelViewSet):
     queryset = Student.objects.all()
     serializer_class = StudentSerializer
+    permission_classes = [IsAuthenticated]  # Require authentication for all actions
 
     def create(self, request, *args, **kwargs):
-        try:
-            return super().create(request, *args, **kwargs)
-        except Exception as e:
-            return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        student = serializer.save()
+        return Response(StudentSerializer(student).data, status=status.HTTP_201_CREATED)
 
+    def update(self, request, *args, **kwargs):
+        student = self.get_object()
+        serializer = self.get_serializer(student, data=request.data, partial=True)
+        serializer.is_valid(raise_exception=True)
+        student = serializer.save()
+        return Response(StudentSerializer(student).data)
+
+    def destroy(self, request, *args, **kwargs):
+        student = self.get_object()
+        student.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
+    def retrieve(self, request, *args, **kwargs):
+        student = self.get_object()
+        serializer = self.get_serializer(student)
+        return Response(serializer.data)
 class SpecialFoodViewSet(viewsets.ModelViewSet):
     queryset = SpecialFood.objects.all()
     serializer_class = SpecialFoodSerializer
+    permission_classes = [IsAuthenticated]  # Require authentication for all actions
 
     def create(self, request, *args, **kwargs):
-        try:
-            return super().create(request, *args, **kwargs)
-        except Exception as e:
-            return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        special_food = serializer.save()
+        return Response(SpecialFoodSerializer(special_food).data, status=status.HTTP_201_CREATED)
+
+    def update(self, request, *args, **kwargs):
+        special_food = self.get_object()
+        serializer = self.get_serializer(special_food, data=request.data, partial=True)
+        serializer.is_valid(raise_exception=True)
+        special_food = serializer.save()
+        return Response(SpecialFoodSerializer(special_food).data)
+
+    def destroy(self, request, *args, **kwargs):
+        special_food = self.get_object()
+        special_food.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
+    def retrieve(self, request, *args, **kwargs):
+        special_food = self.get_object()
+        serializer = self.get_serializer(special_food)
+        return Response(serializer.data)
 
 class PrescriptionViewSet(viewsets.ModelViewSet):
     queryset = Prescription.objects.all()
     serializer_class = PrescriptionSerializer
-    permission_classes = [IsAuthenticated, IsClinicOrKitchenStaff]  # Apply permission classes
+    permission_classes = [IsAuthenticated, IsClinicStaff]  # Only Clinic Staff can create/update prescriptions
 
     def perform_create(self, serializer):
-        # Ensure only ClinicStaff can create a prescription
-        if self.request.user.groups.filter(name='ClinicStaff').exists():
+        if self.request.user.role == 'ClinicStaff':
             serializer.save(issued_by=self.request.user)
         else:
-            # raise PermissionDenied("You do not have permission to create a prescription.")
-            pass
-    # def perform_create(self, serializer):
-    #     try:
-    #         student_data = self.request.data.get('student')
-    #         special_foods_data = self.request.data.get('special_foods')
+            return Response({"error": "You do not have permission to create a prescription."}, status=status.HTTP_403_FORBIDDEN)
 
-    #         # Handle nested data for student and special_foods
-    
-    #         if student_data:
-    #             student, created = Student.objects.get_or_create(**student_data)
-    #             serializer.save(student=student)
+    def update(self, request, *args, **kwargs):
+        prescription = self.get_object()
+        serializer = self.get_serializer(prescription, data=request.data, partial=True)
+        serializer.is_valid(raise_exception=True)
+        prescription = serializer.save()
+        return Response(PrescriptionSerializer(prescription).data)
 
-    #         if special_foods_data:
-    #             special_foods = SpecialFood.objects.filter(id__in=[food['id'] for food in special_foods_data])
-    #             serializer.save(special_foods=special_foods)
+    def destroy(self, request, *args, **kwargs):
+        prescription = self.get_object()
+        prescription.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
 
-    #     except Exception as e:
-    #         raise NotFound({"error": str(e)})
+    def retrieve(self, request, *args, **kwargs):
+        prescription = self.get_object()
+        serializer = self.get_serializer(prescription)
+        return Response(serializer.data)
 
-    # def create(self, request, *args, **kwargs):
-    #     try:
-    #         return super().create(request, *args, **kwargs)
-    #     except Exception as e:
-    #         return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)

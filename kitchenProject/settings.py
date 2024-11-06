@@ -135,3 +135,6 @@ STATICFILES = [
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 AUTH_USER_MODEL = 'apis.User'
+
+CSRF_COOKIE_HTTPONLY = False  # Optional: Set to True if you don’t need JavaScript to access the token.
+CSRF_COOKIE_NAME = "csrftoken"

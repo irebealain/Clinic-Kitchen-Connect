@@ -19,7 +19,7 @@ class SpecialFood(models.Model):
 class Prescription(models.Model):
     student = models.ForeignKey(Student, on_delete=models.CASCADE)
     issued_by = models.ForeignKey(User, on_delete=models.CASCADE)
-    issued_date = models.DateField(default=timezone.now)
+    issued_date = models.DateField(auto_now_add= True)
     expiry_date = models.DateField()
     special_food = models.ForeignKey(SpecialFood, on_delete=models.CASCADE, default=1)
 

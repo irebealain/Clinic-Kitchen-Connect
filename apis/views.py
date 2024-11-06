@@ -7,6 +7,8 @@ from django.contrib.auth import login
 from rest_framework.authtoken.models import Token
 from rest_framework import status
 from rest_framework.decorators import action
+from rest_framework.exceptions import PermissionDenied
+
 
 class UserViewSet(viewsets.ModelViewSet):
     queryset = User.objects.all()
@@ -30,17 +32,18 @@ class PrescriptionViewSet(viewsets.ModelViewSet):
             raise PermissionDenied("Only clinic staff can create prescriptions.")
         serializer.save()
 class AuthViewSet(viewsets.GenericViewSet):
-    
+    serializer_class = SignupSerializer  # default serializer as fallback
+
     def get_serializer_class(self):
         if self.action == 'sign_up':
             return SignupSerializer
         elif self.action == 'login':
             return LoginSerializer
         return super().get_serializer_class()
+
     @action(detail=False, methods=['post'])
-    
     def sign_up(self, request):
-        serializer = SignupSerializer(data=request.data)
+        serializer = self.get_serializer(data=request.data)
         if serializer.is_valid():
             user = serializer.save()
             token, created = Token.objects.get_or_create(user=user)
@@ -48,6 +51,7 @@ class AuthViewSet(viewsets.GenericViewSet):
                 "user": {
                     "username": user.username,
                     "email": user.email,
+                    "role": user.role
                 },
                 "token": token.key
             }, status=status.HTTP_201_CREATED)
@@ -55,7 +59,7 @@ class AuthViewSet(viewsets.GenericViewSet):
 
     @action(detail=False, methods=['post'])
     def login(self, request):
-        serializer = LoginSerializer(data=request.data)
+        serializer = self.get_serializer(data=request.data)
         if serializer.is_valid():
             user = serializer.validated_data
             token, created = Token.objects.get_or_create(user=user)
@@ -64,6 +68,7 @@ class AuthViewSet(viewsets.GenericViewSet):
                 "user": {
                     "username": user.username,
                     "email": user.email,
+                    "role": user.role
                 },
                 "token": token.key
             }, status=status.HTTP_200_OK)

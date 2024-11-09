@@ -1,38 +1,34 @@
 import { useState } from 'react';
-import axios from 'axios';
-import axiosInstance from '../services/axiosInstance';
+import axiosInstance from '../axiosInstance'
 import { Label, Listbox, ListboxButton, ListboxOption, ListboxOptions } from '@headlessui/react';
 import { CheckIcon, ChevronUpDownIcon } from '@heroicons/react/20/solid';
 import logo from '../assets/Agahozo.png';
 
-// Dropdown
 const people = [
-  { id: 1, name: 'Clinic Staff' },
-  { id: 2, name: 'Kitchen Staff' }
+  { name: 'Clinic Staff' },
+  { name: 'Kitchen Staff' }
 ];
 
 const SignUp = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState(null);
-  const [selected, setSelected] = useState(people[0]); // Default to first item
+  const [selected, setSelected] = useState(people[0]);
 
   // Handle form submission
   const handleSignUp = async (event) => {
     event.preventDefault();
     try {
-      // Send POST request to Django backend
-      const response = await axiosInstance.post('http://127.0.0.1:8000/api/auth/sign_up', {
+      const response = await axiosInstance.post('/api/auth/sign_up/', {
         email,
         password,
-        role: selected.name // Add role to the request
+        role: selected.name
       });
-
-      // Handle success
+  
+      console.log("Signup successful!", response.data);
       alert('Signup successful!');
     } catch (err) {
-      // Handle error
-      setError(err.response ? err.response.data : 'Sorry! An error occured');
+      setError(err.response ? err.response.data : 'An error occurred');
     }
   };
 
@@ -48,8 +44,9 @@ const SignUp = () => {
       <div className="mt-10 sm:mx-auto sm:w-full sm:max-w-sm">
         <form onSubmit={handleSignUp} className="space-y-6">
           {error && <p className="text-red-500">{error}</p>}
+          
           <div>
-            <label htmlFor="email" className="block text-sm font-medium text-gray-900 mr-72">
+            <label htmlFor="email" className="block text-sm font-medium text-gray-900">
               Email address
             </label>
             <div className="mt-2">
@@ -67,7 +64,7 @@ const SignUp = () => {
           </div>
 
           <div>
-            <label htmlFor="password" className="block text-sm font-medium text-gray-900 mr-80">
+            <label htmlFor="password" className="block text-sm font-medium text-gray-900">
               Password
             </label>
             <div className="mt-2">
@@ -85,7 +82,7 @@ const SignUp = () => {
           </div>
 
           <Listbox value={selected} onChange={setSelected}>
-            <Label className="block text-sm font-medium text-gray-900 mr-80 -mb-3">Your role</Label>
+            <Label className="block text-sm font-medium text-gray-900">Your role</Label>
             <div className="relative">
               <ListboxButton className="relative w-full cursor-default rounded-md bg-white py-1.5 pl-3 pr-10 text-left text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:outline-none focus:ring-2 focus:ring-green-500 sm:text-sm">
                 <span className="flex items-center">
@@ -99,18 +96,18 @@ const SignUp = () => {
               <ListboxOptions className="absolute z-10 mt-1 max-h-56 w-full overflow-auto rounded-md bg-white py-1 text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm">
                 {people.map((person) => (
                   <ListboxOption
-                    key={person.id}
+                    key={person.name}
                     value={person}
                     className={({ active }) =>
                       `relative cursor-default select-none py-2 pl-3 pr-9 ${active ? 'bg-green-600 text-white' : 'text-gray-900'}`
                     }
                   >
                     <span className="flex items-center">
-                      <span className={`ml-3 block truncate ${selected.id === person.id ? 'font-semibold' : 'font-normal'}`}>
+                      <span className={`ml-3 block truncate ${selected.name === person.name ? 'font-semibold' : 'font-normal'}`}>
                         {person.name}
                       </span>
                     </span>
-                    {selected.id === person.id && (
+                    {selected.name === person.name && (
                       <span className="absolute inset-y-0 right-0 flex items-center pr-4 text-green-600">
                         <CheckIcon className="h-5 w-5" aria-hidden="true" />
                       </span>

@@ -1,25 +1,29 @@
 import { useState } from 'react';
+import { Navigate, useNavigate } from 'react-router-dom';
 import axiosInstance from '../axiosInstance'
 import { Label, Listbox, ListboxButton, ListboxOption, ListboxOptions } from '@headlessui/react';
 import { CheckIcon, ChevronUpDownIcon } from '@heroicons/react/20/solid';
 import logo from '../assets/Agahozo.png';
 
 const people = [
-  { name: 'Clinic Staff' },
-  { name: 'Kitchen Staff' }
+  { name: 'clinic_staff', displayName: 'Clinic Staff' },
+  { name: 'kitchen_staff', displayName: 'Kitchen Staff' }
 ];
 
 const SignUp = () => {
   const [email, setEmail] = useState('');
+  const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState(null);
   const [selected, setSelected] = useState(people[0]);
+  const navigate = useNavigate();
 
   // Handle form submission
   const handleSignUp = async (event) => {
     event.preventDefault();
     try {
       const response = await axiosInstance.post('/api/auth/sign_up/', {
+        username,
         email,
         password,
         role: selected.name
@@ -27,8 +31,12 @@ const SignUp = () => {
   
       console.log("Signup successful!", response.data);
       alert('Signup successful!');
+      navigate('/login');
     } catch (err) {
-      setError(err.response ? err.response.data : 'An error occurred');
+      const errorMessage = err.response && err.response.data 
+          ? JSON.stringify(err.response.data)  // Converts object to a JSON string
+          : 'An error occurred';
+      setError(errorMessage);
     }
   };
 
@@ -44,7 +52,23 @@ const SignUp = () => {
       <div className="mt-10 sm:mx-auto sm:w-full sm:max-w-sm">
         <form onSubmit={handleSignUp} className="space-y-6">
           {error && <p className="text-red-500">{error}</p>}
-          
+          <div>
+            <label htmlFor="email" className="block text-sm font-medium text-gray-900">
+              Username
+            </label>
+            <div className="mt-2">
+              <input
+                id="username"
+                name="username"
+                type="text"
+                required
+                autoComplete="text"
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
+                className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset sm:text-sm p-2"
+              />
+            </div>
+          </div>
           <div>
             <label htmlFor="email" className="block text-sm font-medium text-gray-900">
               Email address
@@ -86,7 +110,7 @@ const SignUp = () => {
             <div className="relative">
               <ListboxButton className="relative w-full cursor-default rounded-md bg-white py-1.5 pl-3 pr-10 text-left text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:outline-none focus:ring-2 focus:ring-green-500 sm:text-sm">
                 <span className="flex items-center">
-                  <span className="ml-3 block truncate">{selected.name}</span>
+                  <span className="ml-3 block truncate">{selected.displayName}</span>
                 </span>
                 <span className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2">
                   <ChevronUpDownIcon aria-hidden="true" className="h-5 w-5 text-gray-400" />

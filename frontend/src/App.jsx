@@ -6,11 +6,12 @@ import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import Profile from './pages/Profile';
 import UserList from './pages/UserList';
 import Prescriptions from './pages/Prescriptions';
+import LandingPage from './pages/LandingPage';
 function App() {
   return (
     <Router>
       <Routes>
-        <Route path='/' element={<SignUp/>}/>
+        <Route path='/' element={<LandingPage/>}/>
         <Route path='/login' element={<Login/>}/>
         <Route path='/dashboard' element = {<Dashboard/>} />
         <Route path='/profile' element = {<Profile/>} />

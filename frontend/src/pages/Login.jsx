@@ -28,6 +28,7 @@ const Login = () => {
       
       if (response.status === 200) {
         localStorage.setItem('authToken', response.data.token); // Store token
+        // if ()
         navigate('/dashboard');  // Redirect to the dashboard
       }
     } catch (err) {

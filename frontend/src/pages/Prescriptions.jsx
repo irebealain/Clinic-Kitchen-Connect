@@ -6,7 +6,7 @@ const Prescriptions = () => {
   useEffect(() => {
     const fetchPrescriptions = async () => {
       try {
-        const response = await axiosInstance.get('/api/prescriptions');
+        const response = await axiosInstance.get('/api/prescriptions/');
         setPrescriptions(response.data);
       } catch (error) {
         console.error('Error fetching prescriptions:', error);

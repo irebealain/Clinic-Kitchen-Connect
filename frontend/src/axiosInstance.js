@@ -8,4 +8,18 @@ const axiosInstance = axios.create({
     },
 });
 
+axiosInstance.interceptors.request.use(
+    (config) => {
+    const token = localStorage.getItem('authToken');
+    if (token) {
+        config.headers['Authorization'] = `Bearer ${token}`;
+    }
+      console.log('Request config:', config); // Log full config
+    return config;
+    },
+    (error) => {
+        return Promise.reject(error);
+    }
+);
+
 export default axiosInstance;

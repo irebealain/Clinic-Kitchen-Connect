@@ -27,9 +27,18 @@ const Login = () => {
       });
       
       if (response.status === 200) {
-        localStorage.setItem('authToken', response.data.token); // Store token
-        // if ()
-        navigate('/dashboard');  // Redirect to the dashboard
+        const {token, userRole} = response.data
+        localStorage.setItem('authToken', token);
+        localStorage.setItem('userRole', userRole);
+        if (userRole == 'kitchen_staff'){
+          navigate('/kitchen-dashboard');
+        }
+        else if (userRole == 'clinic_staff'){
+          navigate('/dashboard');
+        }
+        else {
+          navigate('/');
+        }
       }
     } catch (err) {
       setError(err.response?.data?.message || 'Login failed');
@@ -130,6 +139,12 @@ const Login = () => {
           </div>
         </form>
         {error && <p className="mt-4 text-center text-sm text-red-600">{error}</p>}
+        <p className="mt-10 text-center text-sm/6 text-gray-500">
+            Not a member?{' '}
+            <a href="/sign_up" className="font-semibold text-green-600 hover:text-green-500">
+              Start a new account
+            </a>
+          </p>
       </div>
     </div>
   );

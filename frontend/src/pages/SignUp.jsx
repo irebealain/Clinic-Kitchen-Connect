@@ -151,6 +151,12 @@ const SignUp = () => {
             </button>
           </div>
         </form>
+        <p className="mt-4 text-center text-sm/6 text-gray-500">
+            You're a member?{' '}
+            <a href="/login" className="font-semibold text-green-600 hover:text-green-500">
+              Continue with login
+            </a>
+          </p>
       </div>
     </div>
   );

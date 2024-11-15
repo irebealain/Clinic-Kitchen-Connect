@@ -1,17 +1,31 @@
-import { useState } from 'react'
+import { useState, useRef } from 'react'
 import { Dialog, DialogPanel } from '@headlessui/react'
 import { Bars3Icon, XMarkIcon } from '@heroicons/react/24/outline'
 import AboutUs from '../components/AboutUs'
 import OurTeam from '../components/OurTeam'
 import logo from '../assets/Agahozo.png';
+import ContactUs from '../components/ContactUs'
+import Testimonials from '../components/Testimonials'
+
+
 const navigation = [
-  { name: 'Home', href: '/' },
-  { name: 'About Us', href: '#' },
-  { name: 'Our Team', href: '#' },
-  { name: 'Testimonials', href: '#' },
+  { id: 'home', name: 'Home', href: '/' },
+  { id: 'about', name: 'About Us', href: '#' },
+  { id: 'team', name: 'Our Team', href: '#' },
+  { id: 'testimonials', name: 'Testimonials', href: '#' },
 ]
+
 const LandingPage = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
+  const refs = {
+    home: useRef(null),
+    about: useRef(null),
+    team: useRef(null),
+    testimonials: useRef(null),
+  };
+  const scrollToSection = (id) => {
+    refs[id]?.current?.scrollIntoView({ behavior: 'smooth' });
+  };
   return (
     <div>
         <div className="bg-white">
@@ -39,13 +53,17 @@ const LandingPage = () => {
           </div>
           <div className="hidden lg:flex lg:gap-x-12">
             {navigation.map((item) => (
-              <a key={item.name} href={item.href} className="text-sm/6 font-semibold text-gray-900">
+              <a 
+              key={item.id} 
+              href={item.href } 
+              onClick={() => scrollToSection(item.id)}
+              className="text-sm/6 font-semibold text-gray-900">
                 {item.name}
               </a>
             ))}
           </div>
           <div className="hidden lg:flex lg:flex-1 lg:justify-end">
-            <a href="#" className="text-sm/6 font-semibold text-gray-900">
+            <a href="/login" className="text-sm/6 font-semibold text-gray-900">
               Log in <span aria-hidden="true">&rarr;</span>
             </a>
           </div>
@@ -58,7 +76,7 @@ const LandingPage = () => {
                 <span className="sr-only">Your Company</span>
                 <img
                   alt=""
-                  src="https://tailwindui.com/plus/img/logos/mark.svg?color=indigo&shade=600"
+                  src={logo}
                   className="h-8 w-auto"
                 />
               </a>
@@ -76,8 +94,9 @@ const LandingPage = () => {
                 <div className="space-y-2 py-6">
                   {navigation.map((item) => (
                     <a
-                      key={item.name}
+                      key={item.id}
                       href={item.href}
+                      onClick={() => scrollToSection(item.id)}
                       className="-mx-3 block rounded-lg px-3 py-2 text-base/7 font-semibold text-gray-900 hover:bg-gray-50"
                     >
                       {item.name}
@@ -150,13 +169,15 @@ const LandingPage = () => {
               clipPath:
                 'polygon(74.1% 44.1%, 100% 61.6%, 97.5% 26.9%, 85.5% 0.1%, 80.7% 2%, 72.5% 32.5%, 60.2% 62.4%, 52.4% 68.1%, 47.5% 58.3%, 45.2% 34.5%, 27.5% 76.7%, 0.1% 64.9%, 17.9% 100%, 27.6% 76.8%, 76.1% 97.7%, 74.1% 44.1%)',
             }}
-            className="relative left-[calc(50%+3rem)] aspect-[1155/678] w-[36.125rem] -translate-x-1/2 bg-gradient-to-tr from-[#ff80b5] to-[#9089fc] opacity-30 sm:left-[calc(50%+36rem)] sm:w-[72.1875rem]"
+            className="relative left-[calc(50%+3rem)] aspect-[1155/678] w-[36.125rem] -translate-x-1/2 bg-gradient-to-tr from-[#ffec80] to-[#8bfc89] opacity-30 sm:left-[calc(50%+36rem)] sm:w-[72.1875rem]"
           />
         </div>
       </div>
     </div>
     <div>{<AboutUs/>}</div>
     <div>{<OurTeam/>}</div>
+    <div>{<Testimonials/>}</div>
+    <div>{<ContactUs/>}</div>
     </div>
   )
 }

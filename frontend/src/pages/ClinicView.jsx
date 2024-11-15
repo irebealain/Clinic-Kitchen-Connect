@@ -2,7 +2,6 @@
 import { Disclosure, DisclosureButton, DisclosurePanel, Menu, MenuButton, MenuItem, MenuItems } from '@headlessui/react'
 import { Bars3Icon, XMarkIcon } from '@heroicons/react/24/outline'
 import logo from '../assets/Agahozo.png';
-import Tables from '../components/Tables'
 
 const user = {
   name: 'Tom Cook',
@@ -13,10 +12,10 @@ const user = {
 const navigation = [
   { name: 'Dashboard', href: '#', current: true },
   { name: 'Prescriptions', href: '/prescriptions', current: false },
-  { name: 'Reports', href: '#', current: false },
+  { name: 'Staff List', href: '#', current: false },
 ]
 const userNavigation = [
-  { name: 'Your Profile', href: '/profile' },
+  { name: 'Your Profile', href: '#' },
   { name: 'Settings', href: '#' },
   { name: 'Sign out', href: '#' },
 ]
@@ -25,7 +24,7 @@ function classNames(...classes) {
   return classes.filter(Boolean).join(' ')
 }
 
-const Dashboard = () => {
+const ClinicView = () => {
   return (
     <div className='p-0'>
       <div className="min-h-full">
@@ -148,11 +147,10 @@ const Dashboard = () => {
           </div>
         </header>
         <main>
-          <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">{<Tables/>}</div>
         </main>
       </div>
     </div>
   )
 }
 
-export default Dashboard
+export default ClinicView

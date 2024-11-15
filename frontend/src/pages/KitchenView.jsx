@@ -1,5 +1,4 @@
-import {useState, useEffect} from 'react'
-import axiosInstance from '../axiosInstance';
+import React from 'react'
 import { Disclosure, DisclosureButton, DisclosurePanel, Menu, MenuButton, MenuItem, MenuItems } from '@headlessui/react'
 import { Bars3Icon, XMarkIcon } from '@heroicons/react/24/outline'
 import logo from '../assets/Agahozo.png';
@@ -24,21 +23,7 @@ const userNavigation = [
 function classNames(...classes) {
   return classes.filter(Boolean).join(' ')
 }
-const Prescriptions = () => {
-  const [prescriptions, setPrescriptions] = useState([]);
-
-  useEffect(() => {
-    const fetchPrescriptions = async () => {
-      try {
-        const response = await axiosInstance.get('/api/prescriptions/');
-        setPrescriptions(response.data);
-      } catch (error) {
-        console.error('Error fetching prescriptions:', error);
-      }
-    };
-
-    fetchPrescriptions();
-  }, []);
+const KitchenView = () => {
   return (
     <div className='p-0'>
       <div className="min-h-full">
@@ -161,27 +146,15 @@ const Prescriptions = () => {
           </div>
         </header>
         <main>
+          <ul>
+            <li>
+
+            </li>
+          </ul>
         </main>
       </div>
-      <div>
-      <div className="prescription-list">
-            <h1 className="text-2xl font-bold">Prescriptions</h1>
-            <ul className="mt-4">
-                {prescriptions.map((prescripts) => (
-                    <li key={prescriptions.id} className="py-2 border-b">
-                        <p><strong>Student:</strong> {prescripts.student_id}</p>
-                        <p><strong>Special food:</strong> {prescripts.special_food_id}</p>
-                        <p><strong>Date issued:</strong> {prescripts.issued_date}</p>
-                        <p><strong>Expiry date:</strong> {prescripts.issued_date}</p>
-                    </li>
-                ))}
-            </ul>
-        </div>
     </div>
-    </div>
-
-    
   )
 }
 
-export default Prescriptions
+export default KitchenView

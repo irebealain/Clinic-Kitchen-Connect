@@ -1,7 +1,8 @@
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import { Disclosure, DisclosureButton, DisclosurePanel, Menu, MenuButton, MenuItem, MenuItems } from '@headlessui/react'
 import { Bars3Icon, XMarkIcon } from '@heroicons/react/24/outline'
 import logo from '../assets/Agahozo.png';
+import Prescriptions from './Prescriptions';
 
 const user = {
   name: 'Tom Cook',
@@ -23,6 +24,7 @@ const userNavigation = [
 function classNames(...classes) {
   return classes.filter(Boolean).join(' ')
 }
+
 const KitchenView = () => {
   return (
     <div className='p-0'>
@@ -146,11 +148,7 @@ const KitchenView = () => {
           </div>
         </header>
         <main>
-          <ul>
-            <li>
-
-            </li>
-          </ul>
+          
         </main>
       </div>
     </div>

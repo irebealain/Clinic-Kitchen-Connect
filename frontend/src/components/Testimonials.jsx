@@ -1,3 +1,4 @@
+import testimony from '../assets/hilam.png';
 import logo from '../assets/Agahozo.png';
 const Testimonials = () => {
   return (
@@ -20,8 +21,8 @@ const Testimonials = () => {
           <figcaption className="mt-10">
             <img
               alt=""
-              src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80"
-              className="mx-auto size-10 rounded-full"
+              src= {testimony}
+              className="mx-auto size-16 rounded-full"
             />
             <div className="mt-4 flex items-center justify-center space-x-3 text-base">
               <div className="font-semibold text-gray-900">Hilam</div>

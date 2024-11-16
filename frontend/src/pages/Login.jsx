@@ -5,6 +5,7 @@ import { CheckIcon, ChevronUpDownIcon } from '@heroicons/react/20/solid';
 import axios from '../axiosInstance';
 import { useNavigate } from 'react-router-dom';
 
+
 const roles = [
   { name: 'clinic_staff', displayName: 'Clinic Staff' },
   { name: 'kitchen_staff', displayName: 'Kitchen Staff' }
@@ -27,21 +28,27 @@ const Login = () => {
       });
       
       if (response.status === 200) {
-        const {token, userRole} = response.data
+        const { token, user } = response.data; // Correct naming
+        if (!user.role) {
+          console.error('Role is undefined');
+          setError('Role is missing from the response');
+          return;
+        }
         localStorage.setItem('authToken', token);
-        localStorage.setItem('userRole', userRole);
-        if (userRole == 'kitchen_staff'){
+        localStorage.setItem('role', user.role);
+        if (user.role === 'kitchen_staff') {
           navigate('/kitchen-dashboard');
-        }
-        else if (userRole == 'clinic_staff'){
+        } 
+        else if (user.role === 'clinic_staff') {
           navigate('/dashboard');
-        }
-        else {
-          navigate('/');
-        }
+}
       }
     } catch (err) {
-      setError(err.response?.data?.message || 'Login failed');
+      if (err.response) {
+        setError(err.response.data.message || 'Login failed');
+      } else {
+        setError('Network error, please try again later.');
+      }
     }
   };
 
@@ -114,11 +121,11 @@ const Login = () => {
                     }
                   >
                     <span className="flex items-center">
-                      <span className={`ml-3 block truncate ${selected === role ? 'font-semibold' : 'font-normal'}`}>
-                        {role.displayName}
+                      <span className={`ml-3 block truncate ${selected.name === role.name ? 'font-semibold' : 'font-normal'}`}>
+                        {role.name}
                       </span>
                     </span>
-                    {selected === role && (
+                    {selected.name === role.name && (
                       <span className="absolute inset-y-0 right-0 flex items-center pr-4 text-green-600">
                         <CheckIcon className="h-5 w-5" aria-hidden="true" />
                       </span>

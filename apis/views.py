@@ -1,4 +1,6 @@
 from rest_framework import viewsets
+from rest_framework.views import APIView
+from rest_framework.permissions import AllowAny
 from rest_framework.permissions import IsAuthenticated
 from .models import User, Student, SpecialFood, Prescription
 from .serializers import UserSerializer, StudentSerializer, SpecialFoodSerializer, PrescriptionSerializer, LoginSerializer, SignupSerializer
@@ -20,19 +22,19 @@ class StudentViewSet(viewsets.ModelViewSet):
 class SpecialFoodViewSet(viewsets.ModelViewSet):
     queryset = SpecialFood.objects.all()
     serializer_class = SpecialFoodSerializer
-
+        
 class PrescriptionViewSet(viewsets.ModelViewSet):
     queryset = Prescription.objects.all()
     serializer_class = PrescriptionSerializer
     permission_classes = [IsAuthenticated]
-
+    permission_classes = [AllowAny]
     def perform_create(self, serializer):
         if self.request.user.role != 'clinic_staff':
             raise PermissionDenied("Only clinic staff can create prescriptions.")
         serializer.save()
 class AuthViewSet(viewsets.GenericViewSet):
     serializer_class = SignupSerializer  # default serializer as fallback
-
+    permission_classes = [AllowAny] 
     def get_serializer_class(self):
         if self.action == 'sign_up':
             return SignupSerializer

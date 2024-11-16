@@ -1,7 +1,9 @@
-// import React from 'react'
+import {useEffect} from 'react'
 import { Disclosure, DisclosureButton, DisclosurePanel, Menu, MenuButton, MenuItem, MenuItems } from '@headlessui/react'
 import { Bars3Icon, XMarkIcon } from '@heroicons/react/24/outline'
 import logo from '../assets/Agahozo.png';
+import axiosInstance from '../axiosInstance';
+import PrescriptionForm from '../components/PrescriptionForm';
 
 const user = {
   name: 'Tom Cook',
@@ -146,7 +148,10 @@ const ClinicView = () => {
             <h1 className="text-3xl font-bold tracking-tight text-green-600">Dashboard</h1>
           </div>
         </header>
+
         <main>
+          {/* {<PrescriptionForm/>} */}
+          
         </main>
       </div>
     </div>

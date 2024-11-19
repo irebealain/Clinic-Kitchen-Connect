@@ -26,11 +26,22 @@ function classNames(...classes) {
 }
 const Prescriptions = () => {
   const [prescriptions, setPrescriptions] = useState([]);
-
+  const [filteredPrescriptions, setFilteredPrescriptions] = useState([]);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [newPrescription, setNewPrescription] = useState({
+    first_name: '',
+    last_name: '',
+    doctor_name: '',
+    special_food: '',
+    issued_date: '',
+    expiry_date: '',
+  });
   useEffect(() => {
     const fetchPrescriptions = async () => {
       try {
         const response = await axiosInstance.get('/api/prescriptions/');
+        console.log(response.data);
         setPrescriptions(response.data);
       } catch (error) {
         console.error('Error fetching prescriptions:', error);
@@ -39,6 +50,48 @@ const Prescriptions = () => {
 
     fetchPrescriptions();
   }, []);
+  const handleSearch = (e) => {
+    const term = e.target.value.toLowerCase();
+    setSearchTerm(term);
+    setFilteredPrescriptions(
+      prescriptions.filter(
+        (prescription) =>
+          prescription.first_name.toLowerCase().includes(term) ||
+          prescription.last_name.toLowerCase().includes(term) ||
+          prescription.doctor_name.toLowerCase().includes(term)
+      )
+    );
+  };
+
+  const handleDelete = async (id) => {
+    try {
+      await axiosInstance.delete(`/api/prescriptions/${id}/`);
+      setPrescriptions(prescriptions.filter((item) => item.id !== id));
+      setFilteredPrescriptions(filteredPrescriptions.filter((item) => item.id !== id));
+    } catch (error) {
+      console.error('Error deleting prescription:', error);
+    }
+  };
+
+  const handleCreate = async (e) => {
+    e.preventDefault();
+    try {
+      const response = await axiosInstance.post('/api/prescriptions/', newPrescription);
+      setPrescriptions([...prescriptions, response.data]);
+      setFilteredPrescriptions([...filteredPrescriptions, response.data]);
+      setIsModalOpen(false);
+      setNewPrescription({
+        first_name: '',
+        last_name: '',
+        doctor_name: '',
+        special_food: '',
+        issued_date: '',
+        expiry_date: '',
+      });
+    } catch (error) {
+      console.error('Error creating prescription:', error);
+    }
+  };
   return (
     <div className='p-0'>
       <div className="min-h-full">
@@ -157,26 +210,117 @@ const Prescriptions = () => {
 
         <header className="bg-white">
           <div className="ml-10 max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
-            <h1 className="text-3xl font-bold tracking-tight text-green-600">Dashboard</h1>
+            <h1 className="text-3xl font-bold tracking-tight text-green-600">Prescriptions</h1>
           </div>
         </header>
         <main>
-        </main>
-      </div>
-      <div>
-      <div className="prescription-list">
-            <h1 className="text-2xl font-bold">Prescriptions</h1>
-            <ul className="mt-4">
-                {prescriptions.map((prescripts) => (
-                    <li key={prescriptions.id} className="py-2 border-b">
-                        <p><strong>Student:</strong> {prescripts.student_id}</p>
-                        <p><strong>Special food:</strong> {prescripts.special_food_id}</p>
-                        <p><strong>Date issued:</strong> {prescripts.issued_date}</p>
-                        <p><strong>Expiry date:</strong> {prescripts.issued_date}</p>
-                    </li>
+          <div className="p-0">
+        <div className="min-h-full">
+          <Disclosure as="nav">
+            <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+              <div className="flex h-16 items-center justify-between">
+                <div className="flex items-center justify-between gap-80">
+                  <img alt="Your Company" src={logo} className="h-12 w-12" />
+                </div>
+              </div>
+            </div>
+          </Disclosure>
+          <header className="bg-white">
+            <div className="ml-10 max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
+              <h1 className="text-3xl font-bold tracking-tight text-green-600">Prescriptions</h1>
+            </div>
+          </header>
+
+          {/* Search and Add Button */}
+          <div className="flex justify-between items-center px-4 py-2">
+            <input
+              type="text"
+              value={searchTerm}
+              onChange={handleSearch}
+              placeholder="Search by student or doctor name..."
+              className="border rounded px-3 py-2 w-1/3"
+            />
+            <button
+              onClick={() => setIsModalOpen(true)}
+              className="bg-green-600 text-white px-4 py-2 rounded"
+            >
+              Add Prescription
+            </button>
+          </div>
+
+          {/* Table */}
+          <div className="overflow-x-auto">
+            <table className="min-w-full border-collapse border border-gray-300">
+              <thead>
+                <tr>
+                  <th className="border border-gray-300 px-4 py-2">Student Name</th>
+                  <th className="border border-gray-300 px-4 py-2">Doctor</th>
+                  <th className="border border-gray-300 px-4 py-2">Special Food</th>
+                  <th className="border border-gray-300 px-4 py-2">Issued Date</th>
+                  <th className="border border-gray-300 px-4 py-2">Expiry Date</th>
+                  <th className="border border-gray-300 px-4 py-2">Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                {filteredPrescriptions.map((prescript) => (
+                  <tr key={prescript.id}>
+                    <td className="border border-gray-300 px-4 py-2">
+                      {prescript.first_name} {prescript.last_name}
+                    </td>
+                    <td className="border border-gray-300 px-4 py-2">{prescript.doctor_name}</td>
+                    <td className="border border-gray-300 px-4 py-2">{prescript.special_food}</td>
+                    <td className="border border-gray-300 px-4 py-2">{prescript.issued_date}</td>
+                    <td className="border border-gray-300 px-4 py-2">{prescript.expiry_date}</td>
+                    <td className="border border-gray-300 px-4 py-2">
+                      <button
+                        onClick={() => handleDelete(prescript.id)}
+                        className="bg-red-600 text-white px-2 py-1 rounded"
+                      >
+                        Delete
+                      </button>
+                    </td>
+                  </tr>
                 ))}
-            </ul>
+              </tbody>
+            </table>
+          </div>
         </div>
+
+        {/* Create Prescription Modal */}
+        {isModalOpen && (
+          <div className="fixed inset-0 flex items-center justify-center bg-gray-800 bg-opacity-50">
+            <div className="bg-white p-6 rounded shadow-md w-1/3">
+              <h2 className="text-2xl mb-4">Create Prescription</h2>
+              <form onSubmit={handleCreate}>
+                <input
+                  type="text"
+                  value={newPrescription.first_name}
+                  onChange={(e) =>
+                    setNewPrescription({ ...newPrescription, first_name: e.target.value })
+                  }
+                  placeholder="Student First Name"
+                  className="block w-full border rounded px-3 py-2 mb-4"
+                />
+                {/* Other fields */}
+                <button
+                  type="submit"
+                  className="bg-green-600 text-white px-4 py-2 rounded"
+                >
+                  Submit
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setIsModalOpen(false)}
+                  className="ml-2 bg-gray-500 text-white px-4 py-2 rounded"
+                >
+                  Cancel
+                </button>
+              </form>
+            </div>
+          </div>
+        )}
+      </div>
+        </main>
     </div>
     </div>
 

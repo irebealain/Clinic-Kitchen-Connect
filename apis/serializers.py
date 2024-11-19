@@ -21,9 +21,14 @@ class SpecialFoodSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 class PrescriptionSerializer(serializers.ModelSerializer):
+    first_name = serializers.CharField(source='student.first_name', read_only=True)
+    last_name = serializers.CharField(source='student.last_name', read_only=True)
+    doctor_name = serializers.CharField(source='issued_by.username', read_only=True)
+    special_food = serializers.CharField(source = 'special_food.name', read_only = True)
+    special_food_description = serializers.CharField(source = 'special_food.description', read_only = True)
     class Meta:
         model = Prescription
-        fields = '__all__'
+        fields = ['id', 'first_name', 'last_name', 'special_food','special_food_description','doctor_name', 'issued_date', 'expiry_date']
 # Serializer for user signup
 class SignupSerializer(serializers.ModelSerializer):
     password = serializers.CharField(write_only=True)

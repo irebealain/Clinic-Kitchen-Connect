@@ -10,6 +10,8 @@ from rest_framework.authtoken.models import Token
 from rest_framework import status
 from rest_framework.decorators import action
 from rest_framework.exceptions import PermissionDenied
+from datetime import date
+
 
 
 class UserViewSet(viewsets.ModelViewSet):
@@ -22,16 +24,22 @@ class StudentViewSet(viewsets.ModelViewSet):
 class SpecialFoodViewSet(viewsets.ModelViewSet):
     queryset = SpecialFood.objects.all()
     serializer_class = SpecialFoodSerializer
-        
 class PrescriptionViewSet(viewsets.ModelViewSet):
     queryset = Prescription.objects.all()
     serializer_class = PrescriptionSerializer
     permission_classes = [IsAuthenticated]
     permission_classes = [AllowAny]
+    def get_queryset(self):
+        return Prescription.objects.filter(expiry_date__gte=date.today())
+    
     def perform_create(self, serializer):
         if self.request.user.role != 'clinic_staff':
             raise PermissionDenied("Only clinic staff can create prescriptions.")
         serializer.save()
+    def destroy(self, request, *args, **kwargs):
+        if self.request.user.role != 'clinic_staff':
+            raise PermissionDenied("Only clinic staff can delete prescriptions.")
+        return super().destroy(request, *args, **kwargs)
 class AuthViewSet(viewsets.GenericViewSet):
     serializer_class = SignupSerializer  # default serializer as fallback
     permission_classes = [AllowAny] 

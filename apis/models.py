@@ -1,7 +1,7 @@
 from django.contrib.auth.models import AbstractUser
 from django.db import models
 from django.utils import timezone
-
+from datetime import date
 class User(AbstractUser):
     ROLE_CHOICES = (
         ('clinic_staff', 'Clinic Staff'),
@@ -23,3 +23,6 @@ class Prescription(models.Model):
     expiry_date = models.DateField()
     special_food = models.ForeignKey(SpecialFood, on_delete=models.CASCADE, default=1)
 
+    @property
+    def is_expired(self):
+        return self.expiry_date < date.today()

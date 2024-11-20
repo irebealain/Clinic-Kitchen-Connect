@@ -216,21 +216,6 @@ const Prescriptions = () => {
         <main>
           <div className="p-0">
         <div className="min-h-full">
-          <Disclosure as="nav">
-            <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-              <div className="flex h-16 items-center justify-between">
-                <div className="flex items-center justify-between gap-80">
-                  <img alt="Your Company" src={logo} className="h-12 w-12" />
-                </div>
-              </div>
-            </div>
-          </Disclosure>
-          <header className="bg-white">
-            <div className="ml-10 max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
-              <h1 className="text-3xl font-bold tracking-tight text-green-600">Prescriptions</h1>
-            </div>
-          </header>
-
           {/* Search and Add Button */}
           <div className="flex justify-between items-center px-4 py-2">
             <input

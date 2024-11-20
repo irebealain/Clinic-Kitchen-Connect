@@ -14,6 +14,7 @@ from datetime import date
 
 
 
+
 class UserViewSet(viewsets.ModelViewSet):
     queryset = User.objects.all()
     serializer_class = UserSerializer
@@ -24,22 +25,28 @@ class StudentViewSet(viewsets.ModelViewSet):
 class SpecialFoodViewSet(viewsets.ModelViewSet):
     queryset = SpecialFood.objects.all()
     serializer_class = SpecialFoodSerializer
+
 class PrescriptionViewSet(viewsets.ModelViewSet):
     queryset = Prescription.objects.all()
     serializer_class = PrescriptionSerializer
-    permission_classes = [IsAuthenticated]
+    # permission_classes = [IsAuthenticated]
+    # # Only authenticated users can access
     permission_classes = [AllowAny]
+
     def get_queryset(self):
         return Prescription.objects.filter(expiry_date__gte=date.today())
-    
+
     def perform_create(self, serializer):
-        if self.request.user.role != 'clinic_staff':
+        if not hasattr(self.request.user, 'role') or self.request.user.role != 'clinic_staff':
             raise PermissionDenied("Only clinic staff can create prescriptions.")
         serializer.save()
-    def destroy(self, request, *args, **kwargs):
-        if self.request.user.role != 'clinic_staff':
-            raise PermissionDenied("Only clinic staff can delete prescriptions.")
-        return super().destroy(request, *args, **kwargs)
+        
+    @action(detail=False, methods=['delete'], url_path='delete-expired')
+    def delete_expired_prescriptions(self, request, *args, **kwargs):
+        expired_prescriptions = Prescription.objects.filter(expiry_date__lt=date.today())
+        count = expired_prescriptions.count()
+        expired_prescriptions.delete()
+        return Response({'message': f'{count} expired prescription(s) deleted.'})
 class AuthViewSet(viewsets.GenericViewSet):
     serializer_class = SignupSerializer  # default serializer as fallback
     permission_classes = [AllowAny] 

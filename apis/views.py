@@ -9,7 +9,7 @@ from django.contrib.auth import login
 from rest_framework.authtoken.models import Token
 from rest_framework import status
 from rest_framework.decorators import action
-from rest_framework.exceptions import PermissionDenied
+from rest_framework.exceptions import PermissionDenied, ValidationError
 from datetime import date
 
 
@@ -39,7 +39,18 @@ class PrescriptionViewSet(viewsets.ModelViewSet):
     def perform_create(self, serializer):
         if not hasattr(self.request.user, 'role') or self.request.user.role != 'clinic_staff':
             raise PermissionDenied("Only clinic staff can create prescriptions.")
-        serializer.save()
+
+        special_food_id = self.request.data.get('special_food_id')  # Use the correct field
+        if not special_food_id:
+            raise ValidationError({"special_food_id": "This field is required."})
+
+        try:
+            # Fetch the SpecialFood instance using the provided ID
+            special_food_instance = SpecialFood.objects.get(id=special_food_id)
+        except SpecialFood.DoesNotExist:
+            raise ValidationError({"special_food_id": "Invalid special food ID provided."})
+
+        serializer.save(special_food=special_food_instance, issued_by=self.request.user)
         
     @action(detail=False, methods=['delete'], url_path='delete-expired')
     def delete_expired_prescriptions(self, request, *args, **kwargs):

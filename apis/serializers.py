@@ -21,17 +21,25 @@ class SpecialFoodSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 class PrescriptionSerializer(serializers.ModelSerializer):
+    # Use `PrimaryKeyRelatedField` for dropdown selection during creation
+    special_food_id = serializers.PrimaryKeyRelatedField(
+        queryset=SpecialFood.objects.all(),
+        source='special_food',  # Maps to the `special_food` field in the model
+        required=True,
+    )
+    special_food_name = serializers.CharField(source='special_food.name', read_only=True)
+
+    # Other fields
     first_name = serializers.CharField(source='student.first_name', read_only=True)
     last_name = serializers.CharField(source='student.last_name', read_only=True)
     doctor_name = serializers.CharField(source='issued_by.username', read_only=True)
-    special_food = serializers.CharField(source='special_food.name', read_only=True)
-    special_food_description = serializers.CharField(source='special_food.description', read_only=True)
 
     class Meta:
         model = Prescription
         fields = [
-            'id', 'first_name', 'last_name', 'special_food', 'special_food_description',
-            'doctor_name', 'issued_date', 'expiry_date', 'student', 'issued_by', 'special_food_id'
+            'id', 'student', 'issued_by', 'first_name', 'last_name',
+            'special_food_id', 'special_food_name', 'doctor_name',
+            'issued_date', 'expiry_date'
         ]
 
     # Make sure the IDs for relationships are writeable

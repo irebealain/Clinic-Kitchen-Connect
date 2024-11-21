@@ -1,316 +1,237 @@
-import {useState, useEffect} from 'react'
-import axiosInstance from '../axiosInstance';
-import { Disclosure, DisclosureButton, DisclosurePanel, Menu, MenuButton, MenuItem, MenuItems } from '@headlessui/react'
-import { Bars3Icon, XMarkIcon } from '@heroicons/react/24/outline'
-import logo from '../assets/Agahozo.png';
+import React, { useState, useEffect } from "react";
+import axiosInstance from "../axiosInstance";
+import { TrashIcon } from "@heroicons/react/24/solid";
 
-const user = {
-  name: 'Tom Cook',
-  email: 'tom@example.com',
-  imageUrl:
-    'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80',
-}
-const navigation = [
-  { name: 'Dashboard', href: '#', current: true },
-  { name: 'Prescriptions', href: '/prescriptions', current: false },
-  { name: 'Staff List', href: '#', current: false },
-]
-const userNavigation = [
-  { name: 'Your Profile', href: '#' },
-  { name: 'Settings', href: '#' },
-  { name: 'Sign out', href: '#' },
-]
-
-function classNames(...classes) {
-  return classes.filter(Boolean).join(' ')
-}
 const Prescriptions = () => {
   const [prescriptions, setPrescriptions] = useState([]);
-  const [filteredPrescriptions, setFilteredPrescriptions] = useState([]);
-  const [searchTerm, setSearchTerm] = useState('');
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [newPrescription, setNewPrescription] = useState({
-    first_name: '',
-    last_name: '',
-    doctor_name: '',
-    special_food: '',
-    issued_date: '',
-    expiry_date: '',
+  const [search, setSearch] = useState("");
+  const [showForm, setShowForm] = useState(false);
+  const [students, setStudents] = useState([]);
+  const [users, setUsers] = useState([]);
+  const [specialFoods, setSpecialFoods] = useState([]);
+  const [formData, setFormData] = useState({
+    student: "",
+    issued_by: "",
+    special_food: "",
+    expiry_date: "",
   });
+
+  // Fetch prescriptions
   useEffect(() => {
-    const fetchPrescriptions = async () => {
-      try {
-        const response = await axiosInstance.get('/api/prescriptions/');
-        console.log(response.data);
-        setPrescriptions(response.data);
-      } catch (error) {
-        console.error('Error fetching prescriptions:', error);
-      }
-    };
-
     fetchPrescriptions();
+    fetchDropdownData();
   }, []);
-  const handleSearch = (e) => {
-    const term = e.target.value.toLowerCase();
-    setSearchTerm(term);
-    setFilteredPrescriptions(
-      prescriptions.filter(
-        (prescription) =>
-          prescription.first_name.toLowerCase().includes(term) ||
-          prescription.last_name.toLowerCase().includes(term) ||
-          prescription.doctor_name.toLowerCase().includes(term)
-      )
-    );
-  };
 
-  const handleDelete = async (id) => {
+  const fetchPrescriptions = async () => {
     try {
-      await axiosInstance.delete(`/api/prescriptions/${id}/`);
-      setPrescriptions(prescriptions.filter((item) => item.id !== id));
-      setFilteredPrescriptions(filteredPrescriptions.filter((item) => item.id !== id));
+      const response = await axiosInstance.get("/api/prescriptions/");
+      setPrescriptions(response.data);
     } catch (error) {
-      console.error('Error deleting prescription:', error);
+      console.error("Error fetching prescriptions:", error);
     }
   };
 
-  const handleCreate = async (e) => {
+  const fetchDropdownData = async () => {
+    try {
+      const [studentsResponse, usersResponse, specialFoodsResponse] = await Promise.all([
+        axiosInstance.get("/api/students/"),
+        axiosInstance.get("/api/users/"),
+        axiosInstance.get("/api/special-foods/"),
+      ]);
+      setStudents(studentsResponse.data);
+      setUsers(usersResponse.data);
+      setSpecialFoods(specialFoodsResponse.data);
+    } catch (error) {
+      console.error("Error fetching dropdown data:", error);
+    }
+  };
+
+  // Delete prescription with confirmation
+  const handleDelete = async (id) => {
+    if (window.confirm("Are you sure you want to delete this prescription?")) {
+      try {
+        await axiosInstance.delete(`/api/prescriptions/${id}/`);
+        fetchPrescriptions(); // Refresh list
+      } catch (error) {
+        console.error("Error deleting prescription:", error);
+      }
+    }
+  };
+
+  // Handle form submission
+  const handleFormSubmit = async (e) => {
     e.preventDefault();
     try {
-      const response = await axiosInstance.post('/api/prescriptions/', newPrescription);
-      setPrescriptions([...prescriptions, response.data]);
-      setFilteredPrescriptions([...filteredPrescriptions, response.data]);
-      setIsModalOpen(false);
-      setNewPrescription({
-        first_name: '',
-        last_name: '',
-        doctor_name: '',
-        special_food: '',
-        issued_date: '',
-        expiry_date: '',
-      });
+      await axiosInstance.post("/api/prescriptions/", formData);
+      setShowForm(false); // Close form
+      fetchPrescriptions(); // Refresh list
     } catch (error) {
-      console.error('Error creating prescription:', error);
+      console.error("Error creating prescription:", error);
     }
   };
+
+  // Handle form input changes
+  const handleInputChange = (e) => {
+    setFormData({ ...formData, [e.target.name]: e.target.value });
+  };
+
+  // Filter prescriptions based on search
+  const filteredPrescriptions = prescriptions.filter((prescription) =>
+    `${prescription.first_name} ${prescription.last_name} ${prescription.special_food}`
+      .toLowerCase()
+      .includes(search.toLowerCase())
+  );
+
   return (
-    <div className='p-0'>
-      <div className="min-h-full">
-        <Disclosure as="nav" className="">
-          <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-            <div className="flex h-16 items-center justify-between">
-              <div className="flex items-center justify-between gap-80">
-                <div className="shrink-0">
-                  <img
-                    alt="Your Company"
-                    src= {logo}
-                    className="h-12 w-12"
+    <div className="p-4">
+      {/* Header */}
+      <div className="flex justify-between items-center mb-4">
+        <h1 className="text-2xl font-bold text-green-600">Prescriptions</h1>
+        <button
+          onClick={() => setShowForm(true)}
+          className="bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-500"
+        >
+          Create Prescription
+        </button>
+      </div>
+
+      {/* Search Bar */}
+      <input
+        type="text"
+        placeholder="Search prescriptions..."
+        className="w-full p-2 mb-4 border border-gray-300 rounded-md"
+        value={search}
+        onChange={(e) => setSearch(e.target.value)}
+      />
+
+      {/* Table */}
+      <div className="overflow-x-auto">
+        <table className="w-full table-auto border-collapse border border-gray-200">
+          <thead className="bg-gray-100">
+            <tr>
+              <th className="p-2 border border-gray-200">Student</th>
+              <th className="p-2 border border-gray-200">Doctor</th>
+              <th className="p-2 border border-gray-200">Special Food</th>
+              <th className="p-2 border border-gray-200">Expiry Date</th>
+              <th className="p-2 border border-gray-200">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {filteredPrescriptions.map((prescription) => (
+              <tr key={prescription.id} className="hover:bg-gray-50">
+                <td className="p-2 border border-gray-200">
+                  {prescription.first_name} {prescription.last_name}
+                </td>
+                <td className="p-2 border border-gray-200">{prescription.doctor_name}</td>
+                <td className="p-2 border border-gray-200">{prescription.special_food}</td>
+                <td className="p-2 border border-gray-200">{prescription.expiry_date}</td>
+                <td className="p-2 border border-gray-200 text-center">
+                  <TrashIcon
+                    onClick={() => handleDelete(prescription.id)}
+                    className="w-5 h-5 text-red-600 hover:text-red-500 cursor-pointer inline"
                   />
-                </div>
-                <div className="hidden md:block">
-                  <div className="ml-10 flex items-baseline space-x-4">
-                    {navigation.map((item) => (
-                      <a
-                        key={item.name}
-                        href={item.href}
-                        aria-current={item.current ? 'page' : undefined}
-                        className={classNames(
-                          item.current ? ' text-gray-600' : 'hover:text-gray-500',
-                          'rounded-md px-3 py-2 text-sm font-medium',
-                        )}
-                      >
-                        {item.name}
-                      </a>
-                    ))}
-                  </div>
-                </div>
-              </div>
-              <div className="hidden md:block">
-                <div className="ml-4 flex items-center md:ml-6">
-                  {/* Profile dropdown */}
-                  <Menu as="div" className="relative ml-3">
-                    <div>
-                      <MenuButton className="relative flex max-w-xs items-center rounded-full bg-gray-800 text-sm focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-gray-800">
-                        <span className="absolute -inset-1.5" />
-                        <span className="sr-only">Open user menu</span>
-                        <img alt="" src={user.imageUrl} className="h-8 w-8 rounded-full" />
-                      </MenuButton>
-                    </div>
-                    <MenuItems
-                      transition
-                      className="absolute right-0 z-10 mt-2 w-48 origin-top-right rounded-md bg-white py-1 shadow-lg ring-1 ring-black ring-opacity-5 transition focus:outline-none data-[closed]:scale-95 data-[closed]:transform data-[closed]:opacity-0 data-[enter]:duration-100 data-[leave]:duration-75 data-[enter]:ease-out data-[leave]:ease-in"
-                    >
-                      {userNavigation.map((item) => (
-                        <MenuItem key={item.name}>
-                          <a
-                            href={item.href}
-                            className="block px-4 py-2 text-sm text-gray-700 data-[focus]:bg-gray-100 data-[focus]:outline-none"
-                          >
-                            {item.name}
-                          </a>
-                        </MenuItem>
-                      ))}
-                    </MenuItems>
-                  </Menu>
-                </div>
-              </div>
-              <div className="-mr-2 flex md:hidden">
-                {/* Mobile menu button */}
-                <DisclosureButton className="group relative inline-flex items-center justify-center rounded-md bg-green-800 p-2 text-slate-100 hover:bg-green-600 hover:text-white focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-green-800">
-                  <span className="absolute -inset-0.5" />
-                  <span className="sr-only">Open main menu</span>
-                  <Bars3Icon aria-hidden="true" className="block h-6 w-6 group-data-[open]:hidden" />
-                  <XMarkIcon aria-hidden="true" className="hidden h-6 w-6 group-data-[open]:block" />
-                </DisclosureButton>
-              </div>
-            </div>
-          </div>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
 
-          <DisclosurePanel className="md:hidden">
-            <div className="space-y-1 px-2 pb-3 pt-2 sm:px-3">
-              {navigation.map((item) => (
-                <DisclosureButton
-                  key={item.name}
-                  as="a"
-                  href={item.href}
-                  aria-current={item.current ? 'page' : undefined}
-                  className={classNames(
-                    item.current ? 'text-gray-900': 'text-gray-300 hover:text-green-400',
-                    'block rounded-md px-3 py-2 text-base font-medium',
-                  )}
-                >
-                  {item.name}
-                </DisclosureButton>
-              ))}
-            </div>
-            <div className="border-t border-gray-700 pb-3 pt-4">
-              <div className="flex items-center px-5">
-                <div className="shrink-0">
-                  <img alt="" src={user.imageUrl} className="h-10 w-10 rounded-full" />
-                </div>
-                <div className="ml-3">
-                  <div className="text-base/5 font-medium text-white">{user.name}</div>
-                  <div className="text-sm font-medium text-gray-400">{user.email}</div>
-                </div>
-              </div>
-              <div className="mt-3 space-y-1 px-2">
-                {userNavigation.map((item) => (
-                  <DisclosureButton
-                    key={item.name}
-                    as="a"
-                    href={item.href}
-                    className="block rounded-md px-3 py-2 text-base font-medium text-gray-400 hover:text-green-400"
-                  >
-                    {item.name}
-                  </DisclosureButton>
+      {/* Create Form Popup */}
+      {showForm && (
+        <div
+          className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center"
+          onClick={() => setShowForm(false)}
+        >
+          <div
+            className="bg-white p-6 rounded-md shadow-lg w-1/3"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <h2 className="text-xl font-bold mb-4">Create Prescription</h2>
+            <form onSubmit={handleFormSubmit}>
+              {/* Student */}
+              <label className="block mb-2">Student</label>
+              <select
+                name="student"
+                value={formData.student}
+                onChange={handleInputChange}
+                className="w-full p-2 mb-4 border border-gray-300 rounded-md"
+                required
+              >
+                <option value="">Select a student</option>
+                {students.map((student) => (
+                  <option key={student.id} value={student.id}>
+                    {student.first_name} {student.last_name}
+                  </option>
                 ))}
-              </div>
-            </div>
-          </DisclosurePanel>
-        </Disclosure>
+              </select>
 
-        <header className="bg-white">
-          <div className="ml-10 max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
-            <h1 className="text-3xl font-bold tracking-tight text-green-600">Prescriptions</h1>
-          </div>
-        </header>
-        <main>
-          <div className="p-0">
-        <div className="min-h-full">
-          {/* Search and Add Button */}
-          <div className="flex justify-between items-center px-4 py-2">
-            <input
-              type="text"
-              value={searchTerm}
-              onChange={handleSearch}
-              placeholder="Search by student or doctor name..."
-              className="border rounded px-3 py-2 w-1/3"
-            />
-            <button
-              onClick={() => setIsModalOpen(true)}
-              className="bg-green-600 text-white px-4 py-2 rounded"
-            >
-              Add Prescription
-            </button>
-          </div>
-
-          {/* Table */}
-          <div className="overflow-x-auto">
-            <table className="min-w-full border-collapse border border-gray-300">
-              <thead>
-                <tr>
-                  <th className="border border-gray-300 px-4 py-2">Student Name</th>
-                  <th className="border border-gray-300 px-4 py-2">Doctor</th>
-                  <th className="border border-gray-300 px-4 py-2">Special Food</th>
-                  <th className="border border-gray-300 px-4 py-2">Issued Date</th>
-                  <th className="border border-gray-300 px-4 py-2">Expiry Date</th>
-                  <th className="border border-gray-300 px-4 py-2">Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                {filteredPrescriptions.map((prescript) => (
-                  <tr key={prescript.id}>
-                    <td className="border border-gray-300 px-4 py-2">
-                      {prescript.first_name} {prescript.last_name}
-                    </td>
-                    <td className="border border-gray-300 px-4 py-2">{prescript.doctor_name}</td>
-                    <td className="border border-gray-300 px-4 py-2">{prescript.special_food}</td>
-                    <td className="border border-gray-300 px-4 py-2">{prescript.issued_date}</td>
-                    <td className="border border-gray-300 px-4 py-2">{prescript.expiry_date}</td>
-                    <td className="border border-gray-300 px-4 py-2">
-                      <button
-                        onClick={() => handleDelete(prescript.id)}
-                        className="bg-red-600 text-white px-2 py-1 rounded"
-                      >
-                        Delete
-                      </button>
-                    </td>
-                  </tr>
+              {/* Doctor */}
+              <label className="block mb-2">Doctor</label>
+              <select
+                name="issued_by"
+                value={formData.issued_by}
+                onChange={handleInputChange}
+                className="w-full p-2 mb-4 border border-gray-300 rounded-md"
+                required
+              >
+                <option value="">Select a doctor</option>
+                {users.map((user) => (
+                  <option key={user.id} value={user.id}>
+                    {user.username}
+                  </option>
                 ))}
-              </tbody>
-            </table>
-          </div>
-        </div>
+              </select>
 
-        {/* Create Prescription Modal */}
-        {isModalOpen && (
-          <div className="fixed inset-0 flex items-center justify-center bg-gray-800 bg-opacity-50">
-            <div className="bg-white p-6 rounded shadow-md w-1/3">
-              <h2 className="text-2xl mb-4">Create Prescription</h2>
-              <form onSubmit={handleCreate}>
-                <input
-                  type="text"
-                  value={newPrescription.first_name}
-                  onChange={(e) =>
-                    setNewPrescription({ ...newPrescription, first_name: e.target.value })
-                  }
-                  placeholder="Student First Name"
-                  className="block w-full border rounded px-3 py-2 mb-4"
-                />
-                {/* Other fields */}
-                <button
-                  type="submit"
-                  className="bg-green-600 text-white px-4 py-2 rounded"
-                >
-                  Submit
-                </button>
+              {/* Special Food */}
+              <label className="block mb-2">Special Food</label>
+              <select
+                name="special_food"
+                value={formData.special_food}
+                onChange={handleInputChange}
+                className="w-full p-2 mb-4 border border-gray-300 rounded-md"
+                required
+              >
+                <option value="">Select a special food</option>
+                {specialFoods.map((food) => (
+                  <option key={food.id} value={food.id}>
+                    {food.name}
+                  </option>
+                ))}
+              </select>
+
+              {/* Expiry Date */}
+              <label className="block mb-2">Expiry Date</label>
+              <input
+                type="date"
+                name="expiry_date"
+                value={formData.expiry_date}
+                onChange={handleInputChange}
+                className="w-full p-2 mb-4 border border-gray-300 rounded-md"
+                required
+              />
+
+              <div className="flex justify-end">
                 <button
                   type="button"
-                  onClick={() => setIsModalOpen(false)}
-                  className="ml-2 bg-gray-500 text-white px-4 py-2 rounded"
+                  onClick={() => setShowForm(false)}
+                  className="mr-4 px-4 py-2 text-gray-600 hover:text-gray-800"
                 >
                   Cancel
                 </button>
-              </form>
-            </div>
+                <button
+                  type="submit"
+                  className="bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-500"
+                >
+                  Save
+                </button>
+              </div>
+            </form>
           </div>
-        )}
-      </div>
-        </main>
+        </div>
+      )}
     </div>
-    </div>
+  );
+};
 
-    
-  )
-}
-
-export default Prescriptions
+export default Prescriptions;

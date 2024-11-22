@@ -1,6 +1,7 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import axiosInstance from "../axiosInstance";
 import { TrashIcon } from "@heroicons/react/24/solid";
+import CreateStudent from "../components/CreateStudent";
 
 const Prescriptions = () => {
   const [prescriptions, setPrescriptions] = useState([]);
@@ -12,7 +13,7 @@ const Prescriptions = () => {
   const [formData, setFormData] = useState({
     student: "",
     issued_by: "",
-    special_food: "",
+    special_food_id: "",
     expiry_date: "",
   });
 
@@ -51,33 +52,49 @@ const Prescriptions = () => {
     if (window.confirm("Are you sure you want to delete this prescription?")) {
       try {
         await axiosInstance.delete(`/api/prescriptions/${id}/`);
-        fetchPrescriptions(); // Refresh list
+        fetchPrescriptions();
       } catch (error) {
         console.error("Error deleting prescription:", error);
       }
     }
   };
-
+  const formatExpiryDate = (date) => {
+    const selectedDate = new Date(date);
+    const year = selectedDate.getFullYear();
+    const month = String(selectedDate.getMonth() + 1).padStart(2, "0"); // Add leading zero if needed
+    const day = String(selectedDate.getDate()).padStart(2, "0"); // Add leading zero if needed
+    return `${year}-${month}-${day}`;
+  };
   // Handle form submission
   const handleFormSubmit = async (e) => {
     e.preventDefault();
     try {
-      await axiosInstance.post("/api/prescriptions/", formData);
-      setShowForm(false); // Close form
-      fetchPrescriptions(); // Refresh list
+      const formattedData = {
+        ...formData,
+        expiry_date: formatExpiryDate(formData.expiry_date),
+      };
+
+      await axiosInstance.post("/api/prescriptions/", formattedData);
+      setShowForm(false); // Close the form popup
+      fetchPrescriptions(); // Refresh the list
     } catch (error) {
       console.error("Error creating prescription:", error);
     }
   };
-
   // Handle form input changes
   const handleInputChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
+    const { name, value } = e.target;
+
+    // Update state for form fields
+    setFormData({
+      ...formData,
+      [name]: value,
+    });
   };
 
   // Filter prescriptions based on search
   const filteredPrescriptions = prescriptions.filter((prescription) =>
-    `${prescription.first_name} ${prescription.last_name} ${prescription.special_food}`
+    `${prescription.first_name} ${prescription.last_name} ${prescription.special_food_id}`
       .toLowerCase()
       .includes(search.toLowerCase())
   );
@@ -87,6 +104,7 @@ const Prescriptions = () => {
       {/* Header */}
       <div className="flex justify-between items-center mb-4">
         <h1 className="text-2xl font-bold text-green-600">Prescriptions</h1>
+        <CreateStudent/>
         <button
           onClick={() => setShowForm(true)}
           className="bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-500"
@@ -123,7 +141,7 @@ const Prescriptions = () => {
                   {prescription.first_name} {prescription.last_name}
                 </td>
                 <td className="p-2 border border-gray-200">{prescription.doctor_name}</td>
-                <td className="p-2 border border-gray-200">{prescription.special_food}</td>
+                <td className="p-2 border border-gray-200">{prescription.special_food_id}</td>
                 <td className="p-2 border border-gray-200">{prescription.expiry_date}</td>
                 <td className="p-2 border border-gray-200 text-center">
                   <TrashIcon
@@ -186,7 +204,7 @@ const Prescriptions = () => {
               {/* Special Food */}
               <label className="block mb-2">Special Food</label>
               <select
-                name="special_food"
+                name="special_food_id"
                 value={formData.special_food}
                 onChange={handleInputChange}
                 className="w-full p-2 mb-4 border border-gray-300 rounded-md"

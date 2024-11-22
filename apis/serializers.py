@@ -28,7 +28,7 @@ class PrescriptionSerializer(serializers.ModelSerializer):
         required=True,
     )
     special_food_name = serializers.CharField(source='special_food.name', read_only=True)
-
+    expiry_date = serializers.DateField(input_formats=['%m-%d-%Y', '%Y-%m-%d'])
     # Other fields
     first_name = serializers.CharField(source='student.first_name', read_only=True)
     last_name = serializers.CharField(source='student.last_name', read_only=True)

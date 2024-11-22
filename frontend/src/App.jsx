@@ -9,6 +9,7 @@ import ClinicView from './pages/ClinicView';
 import KitchenView from './pages/KitchenView';
 import ProtectedRoute from './ProtectedRoute';
 import { AuthProvider } from './AuthContext';
+import Charts from './components/Charts';
 
 function App() {
   return (
@@ -18,6 +19,7 @@ function App() {
           <Route path="/" element={<LandingPage />} />
           <Route path="/login" element={<Login />} />
           <Route path="/sign_up" element={<SignUp />} />
+          <Route path="/charts" element={<Charts />} />
           <Route
             path="/dashboard"
             element={

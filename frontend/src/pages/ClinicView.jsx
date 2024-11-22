@@ -2,8 +2,9 @@ import {useEffect} from 'react'
 import { Disclosure, DisclosureButton, DisclosurePanel, Menu, MenuButton, MenuItem, MenuItems } from '@headlessui/react'
 import { Bars3Icon, XMarkIcon } from '@heroicons/react/24/outline'
 import logo from '../assets/Agahozo.png';
-import axiosInstance from '../axiosInstance';
-import PrescriptionForm from '../components/PrescriptionForm';
+
+// import axiosInstance from '../axiosInstance';
+
 
 const user = {
   name: 'Tom Cook',
@@ -151,7 +152,7 @@ const ClinicView = () => {
 
         <main>
           {/* {<PrescriptionForm/>} */}
-          
+          {/* <Charts/> */}
         </main>
       </div>
     </div>

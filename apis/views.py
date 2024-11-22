@@ -18,14 +18,15 @@ from datetime import date
 class UserViewSet(viewsets.ModelViewSet):
     queryset = User.objects.all()
     serializer_class = UserSerializer
+    permission_classes = [AllowAny]
 class StudentViewSet(viewsets.ModelViewSet):
     queryset = Student.objects.all()
     serializer_class = StudentSerializer
-
+    permission_classes = [AllowAny]
 class SpecialFoodViewSet(viewsets.ModelViewSet):
     queryset = SpecialFood.objects.all()
     serializer_class = SpecialFoodSerializer
-
+    permission_classes = [AllowAny]
 class PrescriptionViewSet(viewsets.ModelViewSet):
     queryset = Prescription.objects.all()
     serializer_class = PrescriptionSerializer
@@ -40,7 +41,7 @@ class PrescriptionViewSet(viewsets.ModelViewSet):
         if not hasattr(self.request.user, 'role') or self.request.user.role != 'clinic_staff':
             raise PermissionDenied("Only clinic staff can create prescriptions.")
 
-        special_food_id = self.request.data.get('special_food_id')  # Use the correct field
+        special_food_id = self.request.data.get('special_food')  # Use the correct field
         if not special_food_id:
             raise ValidationError({"special_food_id": "This field is required."})
 
@@ -48,7 +49,7 @@ class PrescriptionViewSet(viewsets.ModelViewSet):
             # Fetch the SpecialFood instance using the provided ID
             special_food_instance = SpecialFood.objects.get(id=special_food_id)
         except SpecialFood.DoesNotExist:
-            raise ValidationError({"special_food_id": "Invalid special food ID provided."})
+            raise ValidationError({"special_food": "Invalid special food ID provided."})
 
         serializer.save(special_food=special_food_instance, issued_by=self.request.user)
         

@@ -42,26 +42,32 @@ const Carts = () => {
   }, []);
 
   return (
-    <div className="bg-gray-100 py-12 px-6">
+    <div className="bg-[#f7f7f7] py-12 px-6">
+      <header className="-mt-8">
+          <div className="ml-5 max-w-7xl px-4 py-6 sm:-px-4 lg:px-8">
+            <h1 className="text-3xl font-bold tracking-tight text-green-600">Dashboard</h1>
+          </div>
+        </header>
       {/* Stats Summary */}
-      <div className="bg-white py-12 sm:py-16 rounded-lg shadow-md mb-8">
-        <div className="mx-auto max-w-7xl">
-          <dl className="grid grid-cols-1 gap-x-8 gap-y-16 text-center lg:grid-cols-3">
-            {stats.map((stat) => (
-              <div key={stat.id} className="mx-auto flex max-w-xs flex-col gap-y-4">
-                <dt className="text-base/7 text-gray-600">{stat.name}</dt>
-                <dd className="order-first text-3xl font-semibold tracking-tight text-gray-900 sm:text-5xl">
-                  {stat.value}
-                </dd>
-              </div>
-            ))}
-          </dl>
+      <div className="mx-auto mt-8 max-w-7xl px-6 lg:px-8">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 mb-24">
+          {stats.map((stat) => (
+            <div
+              key={stat.id}
+              className="bg-white p-6 rounded-lg shadow-md flex flex-col items-center h-40 gap-2"
+            >
+              <dt className="text-lg font-medium text-[#eda246] self-start -mt-3">{stat.name}</dt>
+              <dd className="text-5xl font-bold text-slate-700 mt-2">{stat.value}</dd>
+            </div>
+          ))}
         </div>
       </div>
 
+      
       {/* Clinic Staff Summary */}
-      <div className="bg-white rounded-lg shadow-md p-6">
-        <h2 className="text-2xl font-bold text-green-600 mb-4">Clinic Staff</h2>
+      <div className="flex ml-9 flex-row items-center gap-16 flex-wrap">
+      <div className="bg-white rounded-lg shadow-md p-6 w-[36rem] sm:max-w-full">
+        <h2 className="text-2xl font-bold text-[#eda246] mb-4">Clinic Staff</h2>
         <div className="overflow-x-auto">
           <table className="min-w-full border border-gray-200">
             <thead className="bg-green-600 text-white">
@@ -90,9 +96,9 @@ const Carts = () => {
       </div>
 
       {/* View More Prescriptions */}
-      <div className="mt-12">
+      <div>
         <div className="overflow-x-auto bg-white rounded-lg shadow-md p-6">
-          <h2 className="text-xl font-bold text-green-600 mb-4">Recent Prescriptions</h2>
+          <h2 className="text-xl font-bold text-[#eda246] mb-4">Recent Prescriptions</h2>
           <table className="min-w-full table-auto border-collapse">
             <thead>
               <tr className="bg-green-600 text-white">
@@ -129,6 +135,7 @@ const Carts = () => {
             View More
           </button>
         </div>
+      </div>
       </div>
     </div>
   );

@@ -145,13 +145,7 @@ const ClinicView = () => {
             </div>
           </DisclosurePanel>
         </Disclosure>
-
-        <header className="bg-white">
-          <div className="ml-10 max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
-            <h1 className="text-3xl font-bold tracking-tight text-green-600">Dashboard</h1>
-          </div>
-        </header>
-
+        <hr className='border-[#d1d1d1]'/>
         <main>
           {/* {<PrescriptionForm/>} */}
           <Carts/>

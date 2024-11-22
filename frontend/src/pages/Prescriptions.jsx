@@ -94,7 +94,7 @@ const Prescriptions = () => {
 
   // Filter prescriptions based on search
   const filteredPrescriptions = prescriptions.filter((prescription) =>
-    `${prescription.first_name} ${prescription.last_name} ${prescription.special_food_id}`
+    `${prescription.first_name} ${prescription.last_name} ${prescription.special_food_name}`
       .toLowerCase()
       .includes(search.toLowerCase())
   );
@@ -141,7 +141,7 @@ const Prescriptions = () => {
                   {prescription.first_name} {prescription.last_name}
                 </td>
                 <td className="p-2 border border-gray-200">{prescription.doctor_name}</td>
-                <td className="p-2 border border-gray-200">{prescription.special_food_id}</td>
+                <td className="p-2 border border-gray-200">{prescription.special_food_name}</td>
                 <td className="p-2 border border-gray-200">{prescription.expiry_date}</td>
                 <td className="p-2 border border-gray-200 text-center">
                   <TrashIcon

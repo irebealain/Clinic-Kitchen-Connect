@@ -2,6 +2,7 @@ import {useEffect} from 'react'
 import { Disclosure, DisclosureButton, DisclosurePanel, Menu, MenuButton, MenuItem, MenuItems } from '@headlessui/react'
 import { Bars3Icon, XMarkIcon } from '@heroicons/react/24/outline'
 import logo from '../assets/Agahozo.png';
+import Carts from '../components/carts';
 
 // import axiosInstance from '../axiosInstance';
 
@@ -15,12 +16,13 @@ const user = {
 const navigation = [
   { name: 'Dashboard', href: '#', current: true },
   { name: 'Prescriptions', href: '/prescriptions', current: false },
-  { name: 'Staff List', href: '#', current: false },
+  { name: 'Staff List', href: '/users-list', current: false },
+  { name: 'Special List', href: '/special-foods', current: false },
 ]
 const userNavigation = [
   { name: 'Your Profile', href: '#' },
   { name: 'Settings', href: '#' },
-  { name: 'Sign out', href: '#' },
+  { name: 'Sign out', href: '/' },
 ]
 
 function classNames(...classes) {
@@ -152,7 +154,7 @@ const ClinicView = () => {
 
         <main>
           {/* {<PrescriptionForm/>} */}
-          {/* <Charts/> */}
+          <Carts/>
         </main>
       </div>
     </div>

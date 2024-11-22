@@ -10,6 +10,7 @@ import KitchenView from './pages/KitchenView';
 import ProtectedRoute from './ProtectedRoute';
 import { AuthProvider } from './AuthContext';
 import Charts from './components/Charts';
+import SpecialFoods from './pages/SpecialFoods';
 
 function App() {
   return (
@@ -45,6 +46,7 @@ function App() {
             }
           />
           <Route path="/users-list" element={<UserList />} />
+          <Route path="/special-foods" element={<SpecialFoods />} />
         </Routes>
       </AuthProvider>
     </Router>

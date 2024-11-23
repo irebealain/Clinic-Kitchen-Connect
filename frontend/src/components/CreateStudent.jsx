@@ -41,7 +41,16 @@ const CreateStudent = () => {
       {/* Create Student Button */}
       <button
         onClick={() => setShowForm(true)}
-        className="bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-500"
+        className="text-white px-4 py-2 block sm:hidden absolute top-[-0.5rem] right-[-1.5rem]"
+      >
+        <svg xmlns="http://www.w3.org/2000/svg" fill="green" viewBox="0 0 24 24" strokeWidth={1.5} stroke="green" className="size-8">
+  <path strokeLinecap="round" strokeLinejoin="round" d="M18 7.5v3m0 0v3m0-3h3m-3 0h-3m-2.25-4.125a3.375 3.375 0 1 1-6.75 0 3.375 3.375 0 0 1 6.75 0ZM3 19.235v-.11a6.375 6.375 0 0 1 12.75 0v.109A12.318 12.318 0 0 1 9.374 21c-2.331 0-4.512-.645-6.374-1.766Z" />
+</svg>
+
+      </button>
+      <button
+        onClick={() => setShowForm(true)}
+        className="bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-500 hidden sm:block"
       >
         Create New Student
       </button>
@@ -53,7 +62,7 @@ const CreateStudent = () => {
           onClick={() => setShowForm(false)}
         >
           <div
-            className="bg-white p-6 rounded-md shadow-lg w-1/3"
+            className="bg-white p-6 rounded-md shadow-lg w-4/5 sm:w-1/3"
             onClick={(e) => e.stopPropagation()}
           >
             <h2 className="text-xl font-bold mb-4">Create New Student</h2>

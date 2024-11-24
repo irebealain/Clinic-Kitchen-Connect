@@ -3,7 +3,7 @@ import { Disclosure, DisclosureButton, DisclosurePanel, Menu, MenuButton, MenuIt
 import { Bars3Icon, XMarkIcon } from '@heroicons/react/24/outline'
 import logo from '../assets/Agahozo.png';
 import Carts from '../components/carts';
-
+import ProtectedRoute from '../ProtectedRoute';
 // import axiosInstance from '../axiosInstance';
 
 
@@ -31,6 +31,7 @@ function classNames(...classes) {
 
 const ClinicView = () => {
   return (
+    <ProtectedRoute allowedRoles={'clinic_staff'}>
     <div className='p-0'>
       <div className="min-h-full">
         <Disclosure as="nav" className="">
@@ -152,6 +153,7 @@ const ClinicView = () => {
         </main>
       </div>
     </div>
+    </ProtectedRoute>
   )
 }
 

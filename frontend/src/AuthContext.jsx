@@ -1,44 +1,31 @@
-import { createContext, useContext, useState } from 'react';
-import PropTypes from 'prop-types';
+import React, { createContext, useState, useEffect } from 'react';
+import axiosInstance from './axiosInstance';
 
-// Create the AuthContext
 export const AuthContext = createContext();
 
-// Provide the AuthContext
 export const AuthProvider = ({ children }) => {
-  const [authToken, setAuthToken] = useState(localStorage.getItem('authToken'));
-  const [role, setRole] = useState(localStorage.getItem('role'));
+  const [user, setUser] = useState(null); // Stores the authenticated user
 
-  const login = (token, userRole) => {
-    setAuthToken(token);
-    setRole(userRole);
-    localStorage.setItem('authToken', token);
-    localStorage.setItem('role', userRole);
-  };
+  useEffect(() => {
+    const fetchUser = async () => {
+      try {
+        const token = localStorage.getItem('authToken');
+        if (token) {
+          const response = await axiosInstance.get('/api/users/');
+          setUser(response.data); // Assuming your backend provides user details here
+        }
+      } catch (error) {
+        console.error('Error fetching user profile:', error);
+        setUser(null);
+      }
+    };
 
-  const logout = () => {
-    setAuthToken(null);
-    setRole(null);
-    localStorage.removeItem('authToken');
-    localStorage.removeItem('role');
-  };
+    fetchUser();
+  }, []);
 
   return (
-    <AuthContext.Provider value={{ authToken, role, login, logout }}>
+    <AuthContext.Provider value={{ user, setUser }}>
       {children}
     </AuthContext.Provider>
   );
-};
-
-AuthProvider.propTypes = {
-  children: PropTypes.node.isRequired,
-};
-
-// Export the useAuth hook
-export const useAuth = () => {
-  const context = useContext(AuthContext);
-  if (!context) {
-    throw new Error('useAuth must be used within an AuthProvider');
-  }
-  return context;
 };

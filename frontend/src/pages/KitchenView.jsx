@@ -1,8 +1,11 @@
-import React, { useEffect, useState } from 'react'
+import {useEffect} from 'react'
 import { Disclosure, DisclosureButton, DisclosurePanel, Menu, MenuButton, MenuItem, MenuItems } from '@headlessui/react'
 import { Bars3Icon, XMarkIcon } from '@heroicons/react/24/outline'
 import logo from '../assets/Agahozo.png';
-import Prescriptions from './Prescriptions';
+import Carts from '../components/carts';
+import ProtectedRoute from '../ProtectedRoute';
+// import axiosInstance from '../axiosInstance';
+
 
 const user = {
   name: 'Tom Cook',
@@ -11,22 +14,24 @@ const user = {
     'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80',
 }
 const navigation = [
-  { name: 'Dashboard', href: '#', current: true },
+  { name: 'Dashboard', href: '/dashboard', current: true },
   { name: 'Prescriptions', href: '/prescriptions', current: false },
-  { name: 'Staff List', href: '#', current: false },
+  { name: 'Staff List', href: '/users-list', current: false },
+  { name: 'Special List', href: '/special-foods', current: false },
 ]
 const userNavigation = [
   { name: 'Your Profile', href: '#' },
   { name: 'Settings', href: '#' },
-  { name: 'Sign out', href: '#' },
+  { name: 'Sign out', href: '/' },
 ]
 
 function classNames(...classes) {
   return classes.filter(Boolean).join(' ')
 }
 
-const KitchenView = () => {
+const ClinicView = () => {
   return (
+    <ProtectedRoute allowedRoles={'clinic_staff'}>
     <div className='p-0'>
       <div className="min-h-full">
         <Disclosure as="nav" className="">
@@ -141,18 +146,15 @@ const KitchenView = () => {
             </div>
           </DisclosurePanel>
         </Disclosure>
-
-        <header className="bg-white">
-          <div className="ml-10 max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
-            <h1 className="text-3xl font-bold tracking-tight text-green-600">Dashboard</h1>
-          </div>
-        </header>
+        <hr className='border-[#d1d1d1]'/>
         <main>
-          
+          {/* {<PrescriptionForm/>} */}
+          <Carts/>
         </main>
       </div>
     </div>
+    </ProtectedRoute>
   )
 }
 
-export default KitchenView
+export default ClinicView

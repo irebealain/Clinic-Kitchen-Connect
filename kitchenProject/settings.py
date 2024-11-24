@@ -155,6 +155,15 @@ CSRF_TRUSTED_ORIGINS = [
 ]
 CORS_ALLOW_HEADERS = list(default_headers) + [
     'Authorization',
+    'Cache-Control',
+]
+CORS_ALLOW_METHODS = [
+    'DELETE',
+    'GET',
+    'OPTIONS',
+    'PATCH',
+    'POST',
+    'PUT',
 ]
 CORS_ALLOW_CREDENTIALS = True
 

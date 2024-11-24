@@ -36,11 +36,13 @@ const Login = () => {
         }
         localStorage.setItem('authToken', token);
         localStorage.setItem('role', user.role);
-        if (user.role === 'kitchen_staff') {
-          navigate('/kitchen-dashboard');
-        } 
-        else if (user.role === 'clinic_staff') {
-          navigate('/dashboard');
+        localStorage.setItem('userRole', user.role);
+        if (token && user.role) {
+          if (user.role === 'kitchen_staff') {
+            navigate('/kitchen-dashboard');
+          } else if (user.role === 'clinic_staff') {
+            navigate('/dashboard');
+          }
 }
       }
     } catch (err) {

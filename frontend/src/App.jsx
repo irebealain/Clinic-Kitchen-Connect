@@ -1,14 +1,16 @@
 import './App.css';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { AuthProvider } from './AuthContext';
+import ProtectedRoute from './ProtectedRoute';
+
+// Pages
 import Login from './pages/Login';
 import SignUp from './pages/SignUp';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import UserList from './pages/UserList';
 import Prescriptions from './pages/Prescriptions';
 import LandingPage from './pages/LandingPage';
 import ClinicView from './pages/ClinicView';
 import KitchenView from './pages/KitchenView';
-import ProtectedRoute from './ProtectedRoute';
-import { AuthProvider } from './AuthContext';
 import Charts from './components/Charts';
 import SpecialFoods from './pages/SpecialFoods';
 
@@ -24,9 +26,7 @@ function App() {
           <Route
             path="/dashboard"
             element={
-              <ProtectedRoute allowedRoles={['clinic_staff']}>
-                <ClinicView />
-              </ProtectedRoute>
+              <ClinicView />
             }
           />
           <Route
@@ -45,7 +45,7 @@ function App() {
               </ProtectedRoute>
             }
           />
-          <Route path="/users-list" element={<UserList />} />
+          <Route path="/users-list" element={<UserList />}/>
           <Route path="/special-foods" element={<SpecialFoods />} />
         </Routes>
       </AuthProvider>

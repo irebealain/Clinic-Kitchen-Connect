@@ -5,27 +5,31 @@ import CreateStudent from "../components/CreateStudent";
 import { Disclosure, DisclosureButton, DisclosurePanel, Menu, MenuButton, MenuItem, MenuItems } from '@headlessui/react'
 import { Bars3Icon, XMarkIcon } from '@heroicons/react/24/outline'
 import logo from '../assets/Agahozo.png';
-
+import ProtectedRoute from "../ProtectedRoute";
 const user = {
   name: 'Tom Cook',
   email: 'tom@example.com',
   imageUrl:
       'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80',
-}
+};
+
 const navigation = [
   { name: 'Dashboard', href: '/dashboard', current: true },
   { name: 'Prescriptions', href: '/prescriptions', current: false },
   { name: 'Staff List', href: '/users-list', current: false },
   { name: 'Special List', href: '/special-foods', current: false },
-]
+];
+
 const userNavigation = [
   { name: 'Your Profile', href: '#' },
   { name: 'Settings', href: '#' },
   { name: 'Sign out', href: '/' },
-]
+];
+
 function classNames(...classes) {
-  return classes.filter(Boolean).join(' ')
+  return classes.filter(Boolean).join(' ');
 }
+
 const Prescriptions = () => {
   const [prescriptions, setPrescriptions] = useState([]);
   const [search, setSearch] = useState("");
@@ -40,7 +44,7 @@ const Prescriptions = () => {
     expiry_date: "",
   });
 
-  // Fetch prescriptions
+  // Fetch prescriptions and dropdown data
   useEffect(() => {
     fetchPrescriptions();
     fetchDropdownData();
@@ -70,7 +74,6 @@ const Prescriptions = () => {
     }
   };
 
-  // Delete prescription with confirmation
   const handleDelete = async (id) => {
     if (window.confirm("Are you sure you want to delete this prescription?")) {
       try {
@@ -81,20 +84,22 @@ const Prescriptions = () => {
       }
     }
   };
+
+  // Format date for consistent display and submission
   const formatExpiryDate = (date) => {
     const selectedDate = new Date(date);
     const year = selectedDate.getFullYear();
-    const month = String(selectedDate.getMonth() + 1).padStart(2, "0"); // Add leading zero if needed
-    const day = String(selectedDate.getDate()).padStart(2, "0"); // Add leading zero if needed
+    const month = String(selectedDate.getMonth() + 1).padStart(2, "0");
+    const day = String(selectedDate.getDate()).padStart(2, "0");
     return `${year}-${month}-${day}`;
   };
-  // Handle form submission
+
   const handleFormSubmit = async (e) => {
     e.preventDefault();
     try {
       const formattedData = {
         ...formData,
-        expiry_date: formatExpiryDate(formData.expiry_date),
+        expiry_date: formatExpiryDate(formData.expiry_date), // Apply date formatting
       };
 
       await axiosInstance.post("/api/prescriptions/", formattedData);
@@ -104,18 +109,15 @@ const Prescriptions = () => {
       console.error("Error creating prescription:", error);
     }
   };
-  // Handle form input changes
+
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-
-    // Update state for form fields
     setFormData({
       ...formData,
       [name]: value,
     });
   };
 
-  // Filter prescriptions based on search
   const filteredPrescriptions = prescriptions.filter((prescription) =>
     `${prescription.first_name} ${prescription.last_name} ${prescription.special_food_name}`
       .toLowerCase()
@@ -123,7 +125,8 @@ const Prescriptions = () => {
   );
 
   return (
-    <div className="">
+    <ProtectedRoute allowedRoles={['clinic_staff', 'kitchen_staff']}>
+    <div>
       <Disclosure as="nav" className="">
           <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
             <div className="flex h-16 items-center justify-between">
@@ -397,6 +400,7 @@ const Prescriptions = () => {
         </div>
       )}
     </div>
+    </ProtectedRoute>
   );
 };
 
